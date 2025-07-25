@@ -5,13 +5,13 @@ import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { fetchMovies, fetchTrendingMovies } from "@/services/api";
 import useFetch from "@/services/useFetch";
-import { useRouter } from "expo-router";
-import { ActivityIndicator, FlatList, Image, Text, View } from "react-native";
+import { Link, useRouter } from "expo-router";
+import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 
 export default function Index() {
   const router = useRouter();
 
-  const {data: trendingMovies, loading: trendingLoading, error: trendingError} = useFetch(() => fetchTrendingMovies());
+  const {data: trendingMovies, loading: trendingLoading, error: trendingError} = useFetch(fetchTrendingMovies);
 
   const {data: movies, loading: moviesLoading, error: moviesError} = useFetch(() => fetchMovies( 
     { query: '' }
@@ -36,10 +36,14 @@ export default function Index() {
             ListHeaderComponent={
               <>
                 <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />
-                <SearchBar
-                  onPress={() => router.push(`/search`)}
-                  placeholder="Search for movies..."
-                />
+                <Link href={`/search`} asChild>
+                  <TouchableOpacity>
+                    <SearchBar
+                      placeholder="Search for movies..."
+                      editable={false}
+                    />
+                  </TouchableOpacity>
+                </Link>
                 <View className="mt-10">
                   <Text className="text-lg text-white font-bold mb-3">Trending Movies</Text>
                   <FlatList

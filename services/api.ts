@@ -43,5 +43,23 @@ const fetchTrendingMovies = async () => {
     }
 }
 
-export { fetchMovies, fetchTrendingMovies };
+const fetchMovieDetails = async (id: string): Promise<MovieDetails> => {
+    try {
+        const functionId = '68610178001d5717bf70';
+        const response = await appwriteFunction.createExecution(functionId, JSON.stringify({ id }));
+        if (response.responseStatusCode !== 200) {
+            throw new Error(`Failed to fetch movie details: ${response.status}`);
+        }
+        const data = JSON.parse(response.responseBody);
+        if (!data) {
+            throw new Error("Movie not found");
+        }
+        return data;
+    } catch (error) {
+        console.error("Error fetching movie details:", error);
+        throw error;
+    }
+}
+
+export { fetchMovieDetails, fetchMovies, fetchTrendingMovies };
 

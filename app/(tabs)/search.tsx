@@ -52,6 +52,7 @@ export default function Search() {
                 placeholder="Search movies..." 
                 value={searchTerm}
                 onSearch={setSearchTerm}
+                autoFocus={true}
               />
             </View>
             {moviesLoading && (
