@@ -25,14 +25,14 @@ export default function Index() {
           <FlatList
             data={movies}
             keyExtractor={(item) => item.id.toString()}
-            numColumns={3}
+            numColumns={2}
             columnWrapperStyle={{ 
-              justifyContent: 'flex-start',
+              justifyContent: 'center',
               gap: 20,
               paddingRight: 5,
               marginBottom: 10
             }}
-            className="pb-32 px-5"
+            className="pb-32 px-5 mb-20"
             ListHeaderComponent={
               <>
                 <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />

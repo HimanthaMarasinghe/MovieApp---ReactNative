@@ -2,7 +2,9 @@ import { icons } from "@/constants/icons";
 import { fetchMovieDetails } from "@/services/api";
 import useFetch from "@/services/useFetch";
 import { router, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 interface MovieInfoProps {
     label: string;
@@ -21,8 +23,11 @@ export default function MovieDetails() {
   const {id} = useLocalSearchParams();
   const {data: movie, loading, error} = useFetch(() => fetchMovieDetails(id as string));
 
+  const [favorite, setFavorite] = useState(false);
+  const [watchState, setWatchState] = useState(0); // o - None, 1 - Want to watch, 2 - Watched
+
   return (
-    <View className="bg-primary flex-1">
+    <View className="bg-primary flex-1 pb-20">
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View>
           <Image 
@@ -33,7 +38,7 @@ export default function MovieDetails() {
         </View>
         <View className="flex-col item-start justify-center mt-5 px-5">
           <Text className="text-white font-bold text-xl">{movie?.title}</Text>
-          <View className="flex-row items-center gap-x-1 mt-2">
+          <View className="flex-row items-center gap-x-5 mt-2">
             <Text className="text-light-200 text-sm">{movie?.release_date}</Text>
             <Text className="text-light-200 text-sm">{movie?.runtime} min</Text>
           </View>
@@ -56,15 +61,35 @@ export default function MovieDetails() {
           </View>
         </View>
       </ScrollView>
-      <TouchableOpacity className="absolute bottom-5 left-0 right-0 mx-5 bg-accent rounded-lg py-3.5 flex flex-row item-center justify-center z-50" onPress={router.back}>
-        <Image
-          source={icons.arrow}
-          className="size-5 mr-1 mt-0.5 rotate-180"
-          tintColor="fff"
-          resizeMode="contain"
-        />
-        <Text className="text-white font-semibold text-base">Go Back</Text>
-      </TouchableOpacity>
+      <View className="absolute bottom-5 left-0 right-0 mx-5 flex-row items-center justify-between gap-3">
+        <TouchableOpacity className="bg-accent rounded-lg py-3.5 flex flex-row item-center justify-center z-50 flex-1" onPress={router.back}>
+          <Image
+            source={icons.arrow}
+            className="size-5 mr-1 mt-0.5 rotate-180"
+            tintColor="fff"
+            resizeMode="contain"
+          />
+          <Text className="text-white font-semibold text-base">Go Back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setWatchState(prev => (prev + 1) % 3)} className="w-[50px] flex items-center">
+            <Icon 
+                name={watchState === 2 ? "check-circle" : "eye"}
+                size={35} 
+                color={watchState === 0 ? "white" : "#00d12a"} 
+                className="bg-gray-500/80 rounded-md p-1"
+                solid={watchState !== 0}
+            />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setFavorite(prev => !prev)}>
+            <Icon
+                name="heart"
+                size={35} 
+                color={favorite ? "red" : "white"} 
+                className="bg-gray-500/80 rounded-md p-1"
+                solid={favorite}
+            />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

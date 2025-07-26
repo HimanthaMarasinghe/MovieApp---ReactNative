@@ -32,8 +32,8 @@ export default function Search() {
           <MovieCard movie={item} />
         )}
         keyExtractor={(item) => item.id.toString()}
-        className="px-5"
-        numColumns={3}
+        className="px-5 mb-20"
+        numColumns={2}
         columnWrapperStyle={{
           justifyContent: 'center',
           gap: 16,
