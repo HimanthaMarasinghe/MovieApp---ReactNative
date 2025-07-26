@@ -1,16 +1,23 @@
 import { icons } from "@/constants/icons";
+import { appwriteAccount } from "@/services/appWrite";
+import { login } from "@/services/auth";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Image, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
-export default function LoginScreen({setLoginFormActive} : {setLoginFormActive: Dispatch<SetStateAction<boolean>>}) {
+export default function LoginScreen({setLoginFormActive, setUser} : {setLoginFormActive: Dispatch<SetStateAction<boolean>>, setUser: Dispatch<SetStateAction<null | Awaited<ReturnType<typeof appwriteAccount.get>>>>}) {
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    // Do registration logic here
-    console.log("Login:", { email, password });
-  };
+    const handleLogin = async () => {
+        try {
+            const response = await login(email, password);
+            console.log("Login successful:", response);
+            setUser(await appwriteAccount.get());
+        } catch (err) {
+            alert("Login failed");
+        }
+    };
 
   return (
     <KeyboardAvoidingView 

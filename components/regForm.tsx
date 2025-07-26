@@ -1,22 +1,42 @@
 import { icons } from "@/constants/icons";
+import { appwriteAccount } from "@/services/appWrite";
+import { register } from "@/services/auth";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Image, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
-export default function RegisterScreen({setLoginFormActive} : {setLoginFormActive: Dispatch<SetStateAction<boolean>>}) {
+export default function RegisterScreen({setLoginFormActive, setUser} : {setLoginFormActive: Dispatch<SetStateAction<boolean>>, setUser: Dispatch<SetStateAction<null | Awaited<ReturnType<typeof appwriteAccount.get>>>>}) {
 
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
-  const isValidEmail = (email: string) => {
-    return /\S+@\S+\.\S+/.test(email);
+    const isValidEmail = (email: string) => {
+        return /\S+@\S+\.\S+/.test(email);
+        };
+
+    const handleRegister = async () => {
+        if (!email || !username || !password || !confirmPassword) {
+            alert("Please fill in all fields.");
+            return;
+        }
+        if (!isValidEmail(email)) {
+            alert("Please enter a valid email address.");
+            return;
+        }
+        if (password !== confirmPassword) {
+            alert("Passwords do not match.");
+            return;
+        }
+
+        try {
+            const response = await register(email, password, username);
+            console.log("Registered successfully:", response);
+            setUser(await appwriteAccount.get());
+        } catch (err) {
+            alert("Registration failed");
+        }
     };
-
-  const handleRegister = () => {
-    // Do registration logic here
-    console.log("Register:", { username, password });
-  };
 
   return (
     <KeyboardAvoidingView 

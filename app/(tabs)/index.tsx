@@ -5,11 +5,10 @@ import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { fetchMovies, fetchTrendingMovies } from "@/services/api";
 import useFetch from "@/services/useFetch";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 
 export default function Index() {
-  const router = useRouter();
 
   const {data: trendingMovies, loading: trendingLoading, error: trendingError} = useFetch(fetchTrendingMovies);
 
