@@ -1,12 +1,11 @@
 import { icons } from "@/constants/icons";
+import { AuthContext } from "@/contexts/authContext";
+import { updateWatchState } from "@/services/api";
 import { FontAwesome6 } from '@expo/vector-icons';
 import { Link } from "expo-router";
 import { useContext, useEffect, useState } from "react";
-import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
-import { AuthContext } from "@/contexts/authContext";
-import { appwriteFunction } from "@/services/appWrite";
-import { Models } from "appwrite";
 
 
 export default ({ movie }: { movie: Movie }) => {
@@ -14,42 +13,13 @@ export default ({ movie }: { movie: Movie }) => {
     const [favorite, setFavorite] = useState(false);
     const [watchState, setWatchState] = useState(0); // 0 - None, 1 - Want to watch, 2 - Watched
 
-    const FUNCTION_ID = process.env.EXPO_PUBLIC_SAVE_FUNCTION_ID;
-
     useEffect(() => {
-        console.log(`Movie name: ${movie.title} - State: ${movie.state}`);
         setWatchState(movie.state || 0);
     }, [movie.state]);
 
     const createExecution = async () => {
-        if (!FUNCTION_ID) {
-            Alert.alert('Error', 'Function ID is not set');
-            return;
-        }
-        if(!isLoggedIn) {
-            Alert.alert("Log in to save movies");
-            return;
-        }
-        try {
-            const newWatchState = (watchState + 1) % 3;
-            
-            // const state = newWatchState === 0 ? 'not_set' : newWatchState === 1 ? 'want_to_watch' : 'watched';
-            
-            const execution: Models.Execution = await appwriteFunction.createExecution(
-                FUNCTION_ID,
-                JSON.stringify({ 'movieId': (movie.id).toString(), state : newWatchState })
-            );
-            console.log('Function execution started:', execution);
-            if (execution.status === 'completed' && [200, 201].includes(execution.responseStatusCode)) {
-                setWatchState(newWatchState);
-            } else {
-                console.error('Execution failed:', execution);
-                Alert.alert('Error', 'Something went wrong');
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
+        await updateWatchState(movie.id, watchState, setWatchState, isLoggedIn);
+    }
 
     return (
         <Link href={`/movies/${movie.id}`} asChild className="border border-gray-500/50 rounded-lg">

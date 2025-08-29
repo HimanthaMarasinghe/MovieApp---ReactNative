@@ -1,10 +1,10 @@
 import { icons } from "@/constants/icons";
 import { fetchMovieDetails } from "@/services/api";
 import useFetch from "@/services/useFetch";
+import { FontAwesome6 } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import Icon from 'react-native-vector-icons/FontAwesome5';
 
 interface MovieInfoProps {
     label: string;
@@ -72,7 +72,7 @@ export default function MovieDetails() {
           <Text className="text-white font-semibold text-base">Go Back</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setWatchState(prev => (prev + 1) % 3)} className="w-[50px] flex items-center">
-            <Icon 
+            <FontAwesome6 
                 name={watchState === 2 ? "check-circle" : "eye"}
                 size={35} 
                 color={watchState === 0 ? "white" : "#00d12a"} 
@@ -81,7 +81,7 @@ export default function MovieDetails() {
             />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setFavorite(prev => !prev)}>
-            <Icon
+            <FontAwesome6
                 name="heart"
                 size={35} 
                 color={favorite ? "red" : "white"} 

@@ -1,3 +1,5 @@
+import { Models } from "appwrite";
+import { Alert } from 'react-native';
 import { appwriteFunction } from './appWrite';
 
 const fetchMovies = async ({query}: {query: string}) => {
@@ -11,7 +13,6 @@ const fetchMovies = async ({query}: {query: string}) => {
         if (response.responseStatusCode !== 200) {
             throw new Error(`Function execution failed with status: ${response.status}`);
         }
-        console.log(response.responseBody);
         return JSON.parse(response.responseBody);
     } catch (error) {
         console.error("Error fetching movies from Appwrite Function:", error);
@@ -53,5 +54,37 @@ const fetchMovieDetails = async (id: string): Promise<MovieDetails> => {
     }
 }
 
-export { fetchMovieDetails, fetchMovies, fetchTrendingMovies };
+const updateWatchState = async (movieId : number, watchState : number, setWatchState : React.Dispatch<React.SetStateAction<number>>, isLoggedIn : boolean) => {
+    const FUNCTION_ID = process.env.EXPO_PUBLIC_SAVE_FUNCTION_ID;
+    if (!FUNCTION_ID) {
+        Alert.alert('Error', 'Function ID is not set');
+        return;
+    }
+    if(!isLoggedIn) {
+        Alert.alert("Log in to save movies");
+        return;
+    }
+
+    try {
+        const newWatchState = (watchState + 1) % 3;
+        
+        // const state = newWatchState === 0 ? 'not_set' : newWatchState === 1 ? 'want_to_watch' : 'watched';
+        
+        const execution: Models.Execution = await appwriteFunction.createExecution(
+            FUNCTION_ID,
+            JSON.stringify({ 'movieId': (movieId).toString(), state : newWatchState })
+        );
+        console.log('Function execution started:', execution);
+        if (execution.status === 'completed' && [200, 201].includes(execution.responseStatusCode)) {
+            setWatchState(newWatchState);
+        } else {
+            console.error('Execution failed:', execution);
+            Alert.alert('Error', 'Something went wrong');
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+export { fetchMovieDetails, fetchMovies, fetchTrendingMovies, updateWatchState };
 
