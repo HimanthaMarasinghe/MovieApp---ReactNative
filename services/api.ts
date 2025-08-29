@@ -11,6 +11,7 @@ const fetchMovies = async ({query}: {query: string}) => {
         if (response.responseStatusCode !== 200) {
             throw new Error(`Function execution failed with status: ${response.status}`);
         }
+        console.log(response.responseBody);
         return JSON.parse(response.responseBody);
     } catch (error) {
         console.error("Error fetching movies from Appwrite Function:", error);

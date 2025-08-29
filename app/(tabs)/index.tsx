@@ -1,25 +1,26 @@
 import MovieCard from "@/components/movieCard";
 import SearchBar from "@/components/searchBar";
 import TrendingCard from "@/components/trendingCard";
-import { images } from "@/constants/images";
 import { fetchMovies, fetchTrendingMovies } from "@/services/api";
 import useFetch from "@/services/useFetch";
 import { Link } from "expo-router";
-import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from "react-native";
+import { useCallback } from "react";
+import { ActivityIndicator, FlatList, RefreshControl, Text, TouchableOpacity, View } from "react-native";
 
 export default function Index() {
 
-  const {data: trendingMovies, loading: trendingLoading, error: trendingError} = useFetch(fetchTrendingMovies);
-
-  const {data: movies, loading: moviesLoading, error: moviesError} = useFetch(() => fetchMovies( 
+  const {data: movies, loading: moviesLoading, error: moviesError, refetch: refetchMovies} = useFetch(() => fetchMovies( 
     { query: '' }
   ));
+  const {data: trendingMovies, loading: trendingLoading, error: trendingError, refetch: refetchTrending} = useFetch(fetchTrendingMovies);
+
+  const refreshHome = useCallback(() => {
+    refetchMovies();
+    refetchTrending();
+  }, [refetchMovies, refetchTrending]);
 
   return (
     <View className="flex-1 bg-primary">
-      <Image
-        source={images.bg}
-        className="absolute w-full z-0"/>
           <FlatList
             data={movies}
             keyExtractor={(item) => item.id.toString()}
@@ -31,6 +32,12 @@ export default function Index() {
               marginBottom: 10
             }}
             className="pb-32 px-5 mb-20"
+            refreshControl={
+              <RefreshControl
+                refreshing={moviesLoading}
+                onRefresh={refreshHome}
+              />
+            }
             ListHeaderComponent={
               <>
                 {/* <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" /> */}
