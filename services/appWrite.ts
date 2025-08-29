@@ -10,6 +10,14 @@ const client : Client = new Client()
 const appwriteFunction = new Functions(client);
 const appwriteAccount = new Account(client);
 
+// const isLoggedIn = async () => {
+//   try {
+//     await appwriteAccount.get();
+//     return true;
+//   } catch (error) {
+//     return false;
+//   }
+// };
 
 export { appwriteAccount, appwriteFunction };
 

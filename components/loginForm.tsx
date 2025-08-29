@@ -1,13 +1,15 @@
 import { icons } from "@/constants/icons";
 import { appwriteAccount } from "@/services/appWrite";
-import { login } from "@/services/auth";
-import { Dispatch, SetStateAction, useState } from "react";
+// import { login } from "@/services/auth";
+import { AuthContext } from "@/contexts/authContext";
+import { Dispatch, SetStateAction, useContext, useState } from "react";
 import { Image, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function LoginScreen({setLoginFormActive, setUser} : {setLoginFormActive: Dispatch<SetStateAction<boolean>>, setUser: Dispatch<SetStateAction<null | Awaited<ReturnType<typeof appwriteAccount.get>>>>}) {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const { login } = useContext(AuthContext);
 
     const handleLogin = async () => {
         try {

@@ -1,7 +1,6 @@
 import MovieCard from "@/components/movieCard";
 import SearchBar from "@/components/searchBar";
 import TrendingCard from "@/components/trendingCard";
-import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { fetchMovies, fetchTrendingMovies } from "@/services/api";
 import useFetch from "@/services/useFetch";
@@ -34,7 +33,8 @@ export default function Index() {
             className="pb-32 px-5 mb-20"
             ListHeaderComponent={
               <>
-                <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />
+                {/* <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" /> */}
+                <Text className="text-2xl text-center mt-10 mb-5 text-[#AB8BFF] font-bold">Movies Made Easy!</Text>
                 <Link href={`/search`} asChild>
                   <TouchableOpacity>
                     <SearchBar
