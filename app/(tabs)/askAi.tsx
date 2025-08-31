@@ -1,10 +1,11 @@
-import MovieCard from '@/components/horMovieCard';
+import AiResponce from '@/components/aiResponce';
 import { images } from '@/constants/images';
 import { appwriteFunction } from '@/services/appWrite';
 import { FontAwesome6 } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 interface Chat {
   role: 'user' | 'model';
@@ -101,25 +102,7 @@ const AskAi = () => {
                 </View>
               )
             } else {
-              const jsonContent = JSON.parse(item.content);
-              return (
-                <View className='mr-20'>
-                  <View className='py-2 px-4 my-2 rounded-3xl mr-auto bg-accent'>
-                    <Text className='font-bold'>{jsonContent.message}</Text>
-                  </View>
-
-                  {jsonContent.movies && jsonContent.movies.length > 0 && (
-                    <FlatList
-                      data={jsonContent.movies}
-                      keyExtractor={(_, idx) => idx.toString()}
-                      renderItem={({ item }) => (
-                        <MovieCard movie={item} />
-                      )}
-                    />
-                  )}
-                </View>
-              );
-              
+              return <AiResponce content={item.content} />;
             }
           }}
           ListFooterComponent={
