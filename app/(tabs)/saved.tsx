@@ -1,11 +1,12 @@
+import MovieList from "@/components/movieList";
 import { images } from "@/constants/images";
 import { FontAwesome6 } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-
 export default function TabScreen() {
+
   const [activeTab, setActiveTab] = useState<"tab1" | "tab2" | "tab3">("tab1");
 
   return (
@@ -15,7 +16,7 @@ export default function TabScreen() {
           Saved
         </Text>
       {/* Tabs */}
-      <View className="flex-row justify-around shadow-md">
+      <View className="flex-row justify-around shadow-md mb-2">
         {["tab1", "tab2", "tab3"].map((tab, index) => (
           <TouchableOpacity
             key={tab}
@@ -71,13 +72,13 @@ export default function TabScreen() {
       {/* Content */}
       <View className="flex-1 items-center justify-center">
         {activeTab === "tab1" && (
-          <Text className="text-lg font-semibold text-gray-700">Content of Tab 1</Text>
+          <MovieList type="fav" />
         )}
         {activeTab === "tab2" && (
-          <Text className="text-lg font-semibold text-gray-700">Content of Tab 2</Text>
+          <MovieList type="wantToWatch" />
         )}
         {activeTab === "tab3" && (
-          <Text className="text-lg font-semibold text-gray-700">Content of Tab 3</Text>
+          <MovieList type="watched" />
         )}
       </View>
     </SafeAreaView>

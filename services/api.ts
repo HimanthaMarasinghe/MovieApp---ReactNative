@@ -118,9 +118,25 @@ const updateFav = async (movieId : number, curFavourite : number, setFavourite :
     }
 }
 
-const fetchWantToWatchMovies = async () => {
-    
+const fetchSavedMovies = async (type : string) => {
+    try {
+        const functionId = '68b4a0040017273c2be9';
+        const response = await appwriteFunction.createExecution(
+            functionId,
+            JSON.stringify({ type })
+        );
+        if (response.responseStatusCode !== 200) {
+            throw new Error(`Function execution failed with status: ${response.status}`);
+        };
+        const data = JSON.parse(response.responseBody);
+        if (data === 'False') {
+            return [];
+        }
+        return data;
+    } catch (error) {
+        console.error("Error fetching saved movies:", error);
+    }
 }
 
-export { fetchMovieDetails, fetchMovies, fetchTrendingMovies, updateFav, updateWatchState };
+export { fetchMovieDetails, fetchMovies, fetchSavedMovies, fetchTrendingMovies, updateFav, updateWatchState };
 
