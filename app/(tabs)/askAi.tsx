@@ -50,9 +50,7 @@ const AskAi = () => {
       if (response.responseStatusCode !== 200) {
           throw new Error(`Function execution failed with status: ${response.status}`);
       }
-      console.log(response);
-
-      // 3. Append AI response (assuming API returns same Chat format)
+      
       const aiMessage: Chat = {
         role: 'model',
         content: response.responseBody,

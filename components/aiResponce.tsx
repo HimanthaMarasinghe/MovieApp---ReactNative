@@ -1,9 +1,9 @@
+import { useSpeechStore } from '@/store/speechStore';
 import { FontAwesome6 } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 import { useCallback, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import MovieCard from './horMovieCard';
-
 
 interface AImovies {
   title : string;
@@ -11,12 +11,14 @@ interface AImovies {
 }
 
 const AiResponce = ({content} : {content: string}) => {
-    const [speaking, setSpeaking] = useState(false);
     const jsonContent = JSON.parse(content);
+    const { startSpeaking, stopSpeaking } = useSpeechStore();
+    const [speakingState, setSpeakingState ] = useState(false);
 
     const speakMessage = useCallback((message: string, movies: AImovies[]) => {
         Speech.stop();
-        setSpeaking(true);
+        startSpeaking();
+        setSpeakingState(true);
         const intro = message + ". ";
         const moviesText = movies.map((movie, i) => {
             return `${movie.title}. ${movie.overview}.`;
@@ -26,15 +28,14 @@ const AiResponce = ({content} : {content: string}) => {
 
         Speech.speak(fullText, {
             language: "en-US",
-            onDone: () => setSpeaking(false),   // ✅ reset when finished
-            onStopped: () => setSpeaking(false) // ✅ also reset if stopped
+            onDone: () => {
+                stopSpeaking()
+                setSpeakingState(false);
+            },
+            onStopped: () => {setSpeakingState(false)}
         });
-    }, [setSpeaking]);
+    }, [startSpeaking, stopSpeaking]);
 
-    const stopSpeaking = useCallback(() => {
-        setSpeaking(false);
-        Speech.stop();
-    }, [setSpeaking]);
 
     return (
     <View className='flex-row mr-20 items-start'>
@@ -54,13 +55,13 @@ const AiResponce = ({content} : {content: string}) => {
         )}
         </View>
         {
-        speaking ? (
+        speakingState ? (
             <TouchableOpacity onPress={stopSpeaking} className='mt-4 ml-2'>
-            <FontAwesome6 name="pause" color="#aaaaaa" size={20} />
+                <FontAwesome6 name="pause" color="#aaaaaa" size={20} />
             </TouchableOpacity>
         ) : (
             <TouchableOpacity onPress={() => speakMessage(jsonContent.message, jsonContent.movies)} className='mt-4 ml-2'>
-            <FontAwesome6 name="volume-high" color="#aaaaaa" size={20} />
+                <FontAwesome6 name="volume-high" color="#aaaaaa" size={20} />
             </TouchableOpacity>
         )
         }

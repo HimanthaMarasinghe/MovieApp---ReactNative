@@ -1,3 +1,4 @@
+import FloatingAI from "@/components/floatingAI";
 import { AuthProvider } from "@/contexts/authContext";
 import { Stack } from "expo-router";
 import { StatusBar } from "react-native";
@@ -7,6 +8,7 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <StatusBar hidden={true} />
+      <FloatingAI />
       <Stack>
         <Stack.Screen
           name="(tabs)"
