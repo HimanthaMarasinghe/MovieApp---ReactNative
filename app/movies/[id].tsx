@@ -1,10 +1,12 @@
 import { icons } from "@/constants/icons";
-import { fetchMovieDetails } from "@/services/api";
+import { images } from "@/constants/images";
+import { AuthContext } from "@/contexts/authContext";
+import { fetchMovieDetails, updateFav, updateWatchState } from "@/services/api";
 import useFetch from "@/services/useFetch";
 import { FontAwesome6 } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useContext, useEffect, useState } from "react";
+import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 interface MovieInfoProps {
     label: string;
@@ -23,8 +25,36 @@ export default function MovieDetails() {
   const {id} = useLocalSearchParams();
   const {data: movie, loading, error} = useFetch(() => fetchMovieDetails(id as string));
 
-  const [favorite, setFavorite] = useState(false);
-  const [watchState, setWatchState] = useState(0); // o - None, 1 - Want to watch, 2 - Watched
+  const { isLoggedIn } = useContext(AuthContext);
+  const [favourite, setFavourite] = useState(movie?.favourite ? 1 : 0); //-1 - loading, 0 - None, 1 - Favourite
+  const [watchState, setWatchState] = useState(movie?.state || 0); //-1 - loading, 0 - None, 1 - Want to watch, 2 - Watched
+
+  useEffect(() => {
+      if(!movie) return;
+      setWatchState(movie.state || 0);
+      setFavourite(movie.favourite ? 1 : 0);
+  }, [movie]);
+
+  const executeWatchState = async () => {
+      if(!movie) return;
+      await updateWatchState(movie.id, watchState, setWatchState, isLoggedIn);
+  }
+
+  const executeFavorite = async () => {
+      if(!movie) return;
+      await updateFav(movie.id, favourite, setFavourite, isLoggedIn);
+  }
+
+  if (loading) {
+    return (
+      <View className="bg-primary flex-1 pb-20">
+        <Image source={images.bg} className="absolute w-full z-0" />
+        <ActivityIndicator size="large" color="#fff" className="mt-10" />
+      </View>
+    );
+  }
+
+  if (error || !movie) return <Text className="text-white">Error loading movie details.</Text>;
 
   return (
     <View className="bg-primary flex-1 pb-20">
@@ -71,24 +101,38 @@ export default function MovieDetails() {
           />
           <Text className="text-white font-semibold text-base">Go Back</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setWatchState(prev => (prev + 1) % 3)} className="w-[50px] flex items-center">
-            <FontAwesome6 
-                name={watchState === 2 ? "check-circle" : "eye"}
-                size={35} 
-                color={watchState === 0 ? "white" : "#00d12a"} 
-                className="bg-gray-500/80 rounded-md p-1"
-                solid={watchState !== 0}
-            />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setFavorite(prev => !prev)}>
-            <FontAwesome6
-                name="heart"
-                size={35} 
-                color={favorite ? "red" : "white"} 
-                className="bg-gray-500/80 rounded-md p-1"
-                solid={favorite}
-            />
-        </TouchableOpacity>
+        {
+            watchState < 0 ? <ActivityIndicator size="small" color="white" /> : 
+            (
+            <TouchableOpacity 
+                onPress={executeWatchState}
+                >
+                <FontAwesome6 
+                    name={watchState === 2 ? "check-circle" : "eye"}
+                    size={35} 
+                    color={watchState === 0 ? "white" : "#00d12a"} 
+                    className="bg-gray-500/80 rounded-md p-1"
+                    solid={watchState !== 0}
+                />
+            </TouchableOpacity>
+            )
+        }
+        {
+            favourite < 0 ? <ActivityIndicator size="small" color="white" className="w-[47]" /> :
+            (
+            <TouchableOpacity 
+                onPress={executeFavorite}
+                >
+                <FontAwesome6 
+                    name="heart"
+                    size={35} 
+                    color={favourite === 1 ? "red" : "white"} 
+                    className="bg-gray-500/80 rounded-md p-1"
+                    solid={favourite === 1}
+                />
+            </TouchableOpacity>
+            )
+        }
       </View>
     </View>
   );

@@ -2,9 +2,10 @@ import MovieCard from "@/components/movieCard";
 import SearchBar from "@/components/searchBar";
 import TrendingCard from "@/components/trendingCard";
 import { images } from "@/constants/images";
+import { AuthContext } from "@/contexts/authContext";
 import { fetchMovies, fetchTrendingMovies } from "@/services/api";
 import useFetch from "@/services/useFetch";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   FlatList,
   Image,
@@ -14,13 +15,15 @@ import {
   TextInput,
   View
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Index() {
   const [searchTerm, setSearchTerm] = useState('');
   const { data: movies, loading: moviesLoading, error: moviesError, refetch } = useFetch(() =>
     fetchMovies({ query: searchTerm })
   );
+
+  const { isLoggedIn } = useContext(AuthContext);
 
   const scrollViewRef = useRef<FlatList>(null);
   const searchBarRef = useRef<TextInput>(null);
@@ -57,8 +60,13 @@ export default function Index() {
     refetchTrending();
   }, [refetch, refetchTrending]);
 
+  useEffect(() => {
+    setSearchTerm('');
+    refreshHome();
+  }, [isLoggedIn]);
+
   return (
-      <View className="flex-1 bg-primary">
+      <SafeAreaView className="flex-1 bg-primary">
         <Image source={images.bg} className="absolute w-full z-0" />
         <FlatList
           ref={scrollViewRef}
@@ -75,7 +83,7 @@ export default function Index() {
           refreshControl={<RefreshControl refreshing={moviesLoading} onRefresh={refreshHome} />}
           ListHeaderComponent={
             <>
-              <Text className="text-2xl text-center mt-10 mb-5 text-[#AB8BFF] font-bold">
+              <Text className="text-2xl text-center mb-5 text-[#AB8BFF] font-bold">
                 Movies Made Easy!
               </Text>
               <View className="mt-10">
@@ -109,6 +117,6 @@ export default function Index() {
             ) : null
           }
         />
-      </View>
+      </SafeAreaView>
   );
 }

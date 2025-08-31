@@ -14,6 +14,7 @@ interface Movie {
   vote_average: number;
   vote_count?: number;
   state?: number;
+  favourite?: boolean;
 }
 
 interface TrendingMovie {
@@ -70,6 +71,8 @@ interface MovieDetails {
   video: boolean;
   vote_average: number;
   vote_count: number;
+  state?: number;
+  favourite?: boolean;
 }
 
 interface TrendingCardProps {

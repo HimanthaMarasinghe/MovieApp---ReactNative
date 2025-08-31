@@ -4,6 +4,7 @@ import { appwriteFunction } from '@/services/appWrite';
 import { FontAwesome6 } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Chat {
   role: 'user' | 'model';
@@ -64,9 +65,9 @@ const AskAi = () => {
   };
 
   return (
-    <View className="flex-1 pb-10 bg-primary">
+    <SafeAreaView className="flex-1 pb-10 bg-primary">
       <Image source={images.bg} className="absolute w-full z-0" />
-      <Text className="text-5xl text-center mt-10 mb-5 text-[#AB8BFF] font-bold">
+      <Text className="text-5xl text-center mb-5 text-[#AB8BFF] font-bold">
         Ask Ai
       </Text>
       <View className='flex-row'>
@@ -164,7 +165,7 @@ const AskAi = () => {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 };
 

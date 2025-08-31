@@ -55,6 +55,8 @@ const fetchMovieDetails = async (id: string): Promise<MovieDetails> => {
 }
 
 const updateWatchState = async (movieId : number, watchState : number, setWatchState : React.Dispatch<React.SetStateAction<number>>, isLoggedIn : boolean) => {
+    if (watchState < 0) return;
+    setWatchState(-1);
     const FUNCTION_ID = process.env.EXPO_PUBLIC_SAVE_FUNCTION_ID;
     if (!FUNCTION_ID) {
         Alert.alert('Error', 'Function ID is not set');
@@ -68,11 +70,9 @@ const updateWatchState = async (movieId : number, watchState : number, setWatchS
     try {
         const newWatchState = (watchState + 1) % 3;
         
-        // const state = newWatchState === 0 ? 'not_set' : newWatchState === 1 ? 'want_to_watch' : 'watched';
-        
         const execution: Models.Execution = await appwriteFunction.createExecution(
             FUNCTION_ID,
-            JSON.stringify({ 'movieId': (movieId).toString(), state : newWatchState })
+            JSON.stringify({ 'movieId': (movieId).toString(), state : newWatchState, listType : 'watchlist' })
         );
         console.log('Function execution started:', execution);
         if (execution.status === 'completed' && [200, 201].includes(execution.responseStatusCode)) {
@@ -86,5 +86,41 @@ const updateWatchState = async (movieId : number, watchState : number, setWatchS
     }
 };
 
-export { fetchMovieDetails, fetchMovies, fetchTrendingMovies, updateWatchState };
+const updateFav = async (movieId : number, curFavourite : number, setFavourite : React.Dispatch<React.SetStateAction<number>>, isLoggedIn : boolean) => {
+    if (curFavourite < 0) return;
+    setFavourite(-1);
+    const FUNCTION_ID = process.env.EXPO_PUBLIC_SAVE_FUNCTION_ID;
+    if (!FUNCTION_ID) {
+        Alert.alert('Error', 'Function ID is not set');
+        return;
+    }
+    if(!isLoggedIn) {
+        Alert.alert("Log in to save movies");
+        return;
+    }
+
+    try {
+        const favourite = (curFavourite + 1) % 2 === 1;
+
+        const execution: Models.Execution = await appwriteFunction.createExecution(
+            FUNCTION_ID,
+            JSON.stringify({ 'movieId': (movieId).toString(), favourite, listType : "favourite" })
+        );
+        console.log('Function execution started:', execution);
+        if (execution.status === 'completed' && [200, 201].includes(execution.responseStatusCode)) {
+            setFavourite(favourite ? 1 : 0);
+        } else {
+            console.error('Execution failed:', execution);
+            Alert.alert('Error', 'Something went wrong');
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+const fetchWantToWatchMovies = async () => {
+    
+}
+
+export { fetchMovieDetails, fetchMovies, fetchTrendingMovies, updateFav, updateWatchState };
 
