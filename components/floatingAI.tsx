@@ -1,8 +1,12 @@
+import { AiContext } from '@/contexts/aiContext';
 import { useSpeechStore } from '@/store/speechStore';
 import { FontAwesome6 } from '@expo/vector-icons';
-import React, { useEffect, useRef, useState } from 'react';
+import {
+    ExpoSpeechRecognitionModule,
+    useSpeechRecognitionEvent,
+} from "expo-speech-recognition";
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, PanResponder, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
 // Screen dimensions
 const { width, height } = Dimensions.get('window');
 
@@ -15,8 +19,11 @@ const FloatingAI: React.FC = () => {
     const [listening, setListening] = useState(false);
     const [labelSide, setLabelSide] = useState<"left" | "right">("left");
 
+    const { setInputText, sendMessage, speakOutLoudNext } = useContext(AiContext);
+
     const hidden = useRef(false);
     const moved = useRef(false);
+    const listeningRef = useRef(listening);
 
     const position = useRef(new Animated.ValueXY({ x: width - 70, y: height / 2 })).current;
     const scale = useRef(new Animated.Value(1)).current;
@@ -25,6 +32,7 @@ const FloatingAI: React.FC = () => {
     const listenTimerId = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // --- Helper functions ---
+    // Hiding the button after 5 seconds
     const startTimer = () => {
         if (timerId.current) clearTimeout(timerId.current);
 
@@ -61,7 +69,7 @@ const FloatingAI: React.FC = () => {
         if (listenTimerId.current) clearTimeout(listenTimerId.current);
 
         listenTimerId.current = setTimeout(() => {
-            if (!moved.current) setListening(true);
+            if (!moved.current) handleStart();
         }, 1000);
     };
 
@@ -69,7 +77,10 @@ const FloatingAI: React.FC = () => {
     
     useEffect(() => {
         speakingRef.current = speaking;
-        if (speaking) bringBack();
+        if (speaking) {
+            bringBack();
+            clearTimeout(timerId.current!);
+        }
         else startTimer();
     }, [speaking]);
 
@@ -92,6 +103,10 @@ const FloatingAI: React.FC = () => {
             timerId.current && clearTimeout(timerId.current);
         }
     }, []);
+
+    useEffect(() => {
+        listeningRef.current = listening;
+    }, [listening]);
 
     // --- PanResponder ---
     const panResponder = useRef(
@@ -125,12 +140,46 @@ const FloatingAI: React.FC = () => {
 
                 if (!speakingRef.current) startTimer();
                 clearTimeout(listenTimerId.current!);
-                setListening(false);
+                console.log("I was here : ", listeningRef.current);
+                if (listeningRef.current) {
+                    console.log("I was also here");
+                    ExpoSpeechRecognitionModule.stop();
+                }
 
                 if (!moved.current) buttonPress();
             },
         })
     ).current;
+
+    // Listning functionalities
+    useSpeechRecognitionEvent("start", () => setListening(true));
+    useSpeechRecognitionEvent("end", () => {
+        setListening(false);
+        speakOutLoudNext.current = true;
+        sendMessage();
+        setListening(false);
+    });
+    useSpeechRecognitionEvent("result", (event) => {
+        setInputText(event.results[0]?.transcript);
+    });
+    useSpeechRecognitionEvent("error", (event) => {
+        console.log("error code:", event.error, "error message:", event.message);
+    });
+
+    const handleStart = async () => {
+        const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+        if (!result.granted) {
+        console.warn("Permissions not granted", result);
+        return;
+        }
+        // Start speech recognition
+        ExpoSpeechRecognitionModule.start({
+        lang: "en-US",
+        interimResults: true,
+        continuous: true,
+        });
+    };
+
 
     // --- Render ---
     return (

@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "Allow MovieApp to use speech recognition.",
+        "NSMicrophoneUsageDescription": "Allow MovieApp to use the microphone."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +21,10 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.himantha112.MovieApp"
+      "package": "com.himantha112.MovieApp",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -34,6 +41,16 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow MovieApp to use the microphone.",
+          "speechRecognitionPermission": "Allow MovieApp to use speech recognition.",
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox"
+          ]
+        }
       ]
     ],
     "experiments": {
@@ -44,6 +61,7 @@
       "eas": {
         "projectId": "349dddec-17f8-44a0-96a1-2fc688ab6f0d"
       }
-    }
+    },
+    "owner": "himantha112"
   }
 }

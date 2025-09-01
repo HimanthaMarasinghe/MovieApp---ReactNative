@@ -1,67 +1,23 @@
 import AiResponce from '@/components/aiResponce';
 import { images } from '@/constants/images';
-import { appwriteFunction } from '@/services/appWrite';
+import { AiContext } from '@/contexts/aiContext';
 import { FontAwesome6 } from '@expo/vector-icons';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { ActivityIndicator, FlatList, Image, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-
-interface Chat {
-  role: 'user' | 'model';
-  content: string;
-}
-
 const AskAi = () => {
-  const functionId = process.env.EXPO_PUBLIC_CHATWITH_AI_ID || '';
+
+  const { chatArr, setChatArr, inputText, setInputText, waiting, sendMessage, speakOutLoudNext } = useContext(AiContext);
+
   const flatListRef = useRef<FlatList>(null);
 
-  const [chatArr, setChatArr] = useState<Chat[]>([]);
-  const [inputText, setInputText] = useState('');
-  const [waiting, setWaiting] = useState(false);
-
-  // Scroll to bottom when chat updates
   useEffect(() => {
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: false });
     }, 100);
   }, [chatArr]);
 
-  // Send message
-  const sendMessage = async () => {
-    if (!inputText.trim() || !functionId) return;
-    setWaiting(true);
-
-    const userMessage: Chat = {
-      role: 'user',
-      content: inputText,
-    };
-    const updatedChat = [...chatArr, userMessage];
-    setChatArr(updatedChat);
-    setInputText('');
-
-    try {
-
-      const payload = JSON.stringify({ chatHistory : updatedChat });
-      const response = await appwriteFunction.createExecution(
-          functionId,
-          payload
-      );
-      if (response.responseStatusCode !== 200) {
-          throw new Error(`Function execution failed with status: ${response.status}`);
-      }
-      
-      const aiMessage: Chat = {
-        role: 'model',
-        content: response.responseBody,
-      };
-      setChatArr([...updatedChat, aiMessage]);
-    } catch (err) {
-      console.error('API error:', err);
-    } finally {
-      setWaiting(false);
-    }
-  };
 
   return (
     <SafeAreaView className="flex-1 pb-10 bg-primary">
@@ -88,7 +44,8 @@ const AskAi = () => {
                   </View>
                 </View>
           }
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
+            const isLast = index === chatArr.length - 1;
             if (item.role === 'user') {
               return (
                 <View className='ml-20'>
@@ -100,7 +57,7 @@ const AskAi = () => {
                 </View>
               )
             } else {
-              return <AiResponce content={item.content} />;
+              return <AiResponce content={item.content} speakOutLoud={isLast && speakOutLoudNext.current} />;
             }
           }}
           ListFooterComponent={
@@ -122,27 +79,14 @@ const AskAi = () => {
               multiline
               numberOfLines={4}
             />
-            {
-              inputText ? (
-                <TouchableOpacity onPress={sendMessage}>
-                  <FontAwesome6
-                    name="paper-plane"
-                    size={20}
-                    color="white"
-                    className="mr-5"
-                  />
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity onPress={sendMessage}>
-                  <FontAwesome6
-                    name="microphone-lines"
-                    size={20}
-                    color="white"
-                    className="mr-5"
-                  />
-                </TouchableOpacity>
-              )
-            }
+            <TouchableOpacity onPress={sendMessage}>
+              <FontAwesome6
+                name="paper-plane"
+                size={20}
+                color="white"
+                className="mr-5"
+              />
+            </TouchableOpacity>
           </View>
         </View>
       </KeyboardAvoidingView>

@@ -79,3 +79,8 @@ interface TrendingCardProps {
   movie: TrendingMovie;
   index: number;
 }
+
+interface Chat {
+  role: 'user' | 'model';
+  content: string;
+}

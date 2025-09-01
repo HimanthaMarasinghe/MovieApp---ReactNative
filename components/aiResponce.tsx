@@ -1,21 +1,21 @@
+import { AiContext } from '@/contexts/aiContext';
 import { useSpeechStore } from '@/store/speechStore';
 import { FontAwesome6 } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
-import { useCallback, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import MovieCard from './horMovieCard';
 
-interface AImovies {
-  title : string;
-  overview : string;
-}
 
-const AiResponce = ({content} : {content: string}) => {
+const AiResponce = ({content, speakOutLoud} : {content: string, speakOutLoud? : boolean}) => {
     const jsonContent = JSON.parse(content);
+    const message = jsonContent.message;
+    const movies : Movie[] = jsonContent.movies || [];
     const { startSpeaking, stopSpeaking } = useSpeechStore();
     const [speakingState, setSpeakingState ] = useState(false);
+    const {speakOutLoudNext} = useContext(AiContext);
 
-    const speakMessage = useCallback((message: string, movies: AImovies[]) => {
+    const speakMessage = useCallback(() => {
         Speech.stop();
         startSpeaking();
         setSpeakingState(true);
@@ -34,7 +34,14 @@ const AiResponce = ({content} : {content: string}) => {
             },
             onStopped: () => {setSpeakingState(false)}
         });
-    }, [startSpeaking, stopSpeaking]);
+    }, [startSpeaking, stopSpeaking, message, movies]);
+
+    useEffect(() => {
+        if(speakOutLoud) {
+            speakMessage();
+            speakOutLoudNext.current = false;
+        }
+    }, []);
 
 
     return (
@@ -44,9 +51,9 @@ const AiResponce = ({content} : {content: string}) => {
             <Text className='font-bold'>{jsonContent.message}</Text>
         </View>
 
-        {jsonContent.movies && jsonContent.movies.length > 0 && (
+        {movies && movies.length > 0 && (
             <FlatList
-            data={jsonContent.movies}
+            data={movies}
             keyExtractor={(_, idx) => idx.toString()}
             renderItem={({ item }) => (
             <MovieCard movie={item} />
@@ -60,7 +67,7 @@ const AiResponce = ({content} : {content: string}) => {
                 <FontAwesome6 name="pause" color="#aaaaaa" size={20} />
             </TouchableOpacity>
         ) : (
-            <TouchableOpacity onPress={() => speakMessage(jsonContent.message, jsonContent.movies)} className='mt-4 ml-2'>
+            <TouchableOpacity onPress={() => speakMessage()} className='mt-4 ml-2'>
                 <FontAwesome6 name="volume-high" color="#aaaaaa" size={20} />
             </TouchableOpacity>
         )
