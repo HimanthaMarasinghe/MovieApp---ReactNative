@@ -1,3 +1,5 @@
+import { Models } from "appwrite";
+import { Alert } from 'react-native';
 import { appwriteFunction } from './appWrite';
 
 const fetchMovies = async ({query}: {query: string}) => {
@@ -52,5 +54,89 @@ const fetchMovieDetails = async (id: string): Promise<MovieDetails> => {
     }
 }
 
-export { fetchMovieDetails, fetchMovies, fetchTrendingMovies };
+const updateWatchState = async (movieId : number, watchState : number, setWatchState : React.Dispatch<React.SetStateAction<number>>, isLoggedIn : boolean) => {
+    if (watchState < 0) return;
+    setWatchState(-1);
+    const FUNCTION_ID = process.env.EXPO_PUBLIC_SAVE_FUNCTION_ID;
+    if (!FUNCTION_ID) {
+        Alert.alert('Error', 'Function ID is not set');
+        return;
+    }
+    if(!isLoggedIn) {
+        Alert.alert("Log in to save movies");
+        return;
+    }
+
+    try {
+        const newWatchState = (watchState + 1) % 3;
+        
+        const execution: Models.Execution = await appwriteFunction.createExecution(
+            FUNCTION_ID,
+            JSON.stringify({ 'movieId': (movieId).toString(), state : newWatchState, listType : 'watchlist' })
+        );
+        console.log('Function execution started:', execution);
+        if (execution.status === 'completed' && [200, 201].includes(execution.responseStatusCode)) {
+            setWatchState(newWatchState);
+        } else {
+            console.error('Execution failed:', execution);
+            Alert.alert('Error', 'Something went wrong');
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const updateFav = async (movieId : number, curFavourite : number, setFavourite : React.Dispatch<React.SetStateAction<number>>, isLoggedIn : boolean) => {
+    if (curFavourite < 0) return;
+    setFavourite(-1);
+    const FUNCTION_ID = process.env.EXPO_PUBLIC_SAVE_FUNCTION_ID;
+    if (!FUNCTION_ID) {
+        Alert.alert('Error', 'Function ID is not set');
+        return;
+    }
+    if(!isLoggedIn) {
+        Alert.alert("Log in to save movies");
+        return;
+    }
+
+    try {
+        const favourite = (curFavourite + 1) % 2 === 1;
+
+        const execution: Models.Execution = await appwriteFunction.createExecution(
+            FUNCTION_ID,
+            JSON.stringify({ 'movieId': (movieId).toString(), favourite, listType : "favourite" })
+        );
+        console.log('Function execution started:', execution);
+        if (execution.status === 'completed' && [200, 201].includes(execution.responseStatusCode)) {
+            setFavourite(favourite ? 1 : 0);
+        } else {
+            console.error('Execution failed:', execution);
+            Alert.alert('Error', 'Something went wrong');
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+const fetchSavedMovies = async (type : string) => {
+    try {
+        const functionId = '68b4a0040017273c2be9';
+        const response = await appwriteFunction.createExecution(
+            functionId,
+            JSON.stringify({ type })
+        );
+        if (response.responseStatusCode !== 200) {
+            throw new Error(`Function execution failed with status: ${response.status}`);
+        };
+        const data = JSON.parse(response.responseBody);
+        if (data === 'False') {
+            return [];
+        }
+        return data;
+    } catch (error) {
+        console.error("Error fetching saved movies:", error);
+    }
+}
+
+export { fetchMovieDetails, fetchMovies, fetchSavedMovies, fetchTrendingMovies, updateFav, updateWatchState };
 

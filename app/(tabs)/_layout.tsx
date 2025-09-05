@@ -15,6 +15,7 @@ const TabIcon = ({ focused, icon, title}:any) => {
             <Image 
                 source={icon}
                 tintColor="#151312"
+                resizeMode="contain"
                 className='size-5' />
             <Text className='text-secondary text-base font-semibold ml-2'>{title}</Text>
         </ImageBackground>
@@ -25,6 +26,7 @@ const TabIcon = ({ focused, icon, title}:any) => {
             <Image 
                 source={icon}
                 tintColor="#A8B5DB"
+                resizeMode="contain"
                 className='size-5' />
         </View>
     )
@@ -66,13 +68,13 @@ export default () => {
                     }
                 }} />
             <Tabs.Screen
-                name='search'
+                name='askAi'
                 options={{
-                    title: 'Search',
+                    title: 'Ai',
                     headerShown: false,
                     tabBarIcon: ({ focused }) => {
                         return (
-                            <TabIcon focused={focused} icon={icons.search} title="Search" />
+                            <TabIcon focused={focused} icon={icons.askAi} title="Ask AI" />
                         )
                     }
                 }} />

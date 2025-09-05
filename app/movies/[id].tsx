@@ -1,10 +1,12 @@
 import { icons } from "@/constants/icons";
-import { fetchMovieDetails } from "@/services/api";
+import { images } from "@/constants/images";
+import { AuthContext } from "@/contexts/authContext";
+import { fetchMovieDetails, updateFav, updateWatchState } from "@/services/api";
 import useFetch from "@/services/useFetch";
+import { FontAwesome6 } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import { useContext, useEffect, useState } from "react";
+import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 interface MovieInfoProps {
     label: string;
@@ -23,15 +25,43 @@ export default function MovieDetails() {
   const {id} = useLocalSearchParams();
   const {data: movie, loading, error} = useFetch(() => fetchMovieDetails(id as string));
 
-  const [favorite, setFavorite] = useState(false);
-  const [watchState, setWatchState] = useState(0); // o - None, 1 - Want to watch, 2 - Watched
+  const { isLoggedIn } = useContext(AuthContext);
+  const [favourite, setFavourite] = useState(movie?.favourite ? 1 : 0); //-1 - loading, 0 - None, 1 - Favourite
+  const [watchState, setWatchState] = useState(movie?.state || 0); //-1 - loading, 0 - None, 1 - Want to watch, 2 - Watched
+
+  useEffect(() => {
+      if(!movie) return;
+      setWatchState(movie.state || 0);
+      setFavourite(movie.favourite ? 1 : 0);
+  }, [movie]);
+
+  const executeWatchState = async () => {
+      if(!movie) return;
+      await updateWatchState(movie.id, watchState, setWatchState, isLoggedIn);
+  }
+
+  const executeFavorite = async () => {
+      if(!movie) return;
+      await updateFav(movie.id, favourite, setFavourite, isLoggedIn);
+  }
+
+  if (loading) {
+    return (
+      <View className="bg-primary flex-1 pb-20">
+        <Image source={images.bg} className="absolute w-full z-0" />
+        <ActivityIndicator size="large" color="#fff" className="mt-10" />
+      </View>
+    );
+  }
+
+  if (error || !movie) return <Text className="text-white">Error loading movie details.</Text>;
 
   return (
     <View className="bg-primary flex-1 pb-20">
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View>
           <Image 
-            source={{uri : `https://image.tmdb.org/t/p/w500${movie?.poster_path}`}} 
+            source={movie?.poster_path ? {uri : `https://image.tmdb.org/t/p/w500${movie?.poster_path}`} : images.imageNotFound } 
             className="w-full h-[550px]"
             resizeMode="stretch"
           />
@@ -62,7 +92,16 @@ export default function MovieDetails() {
         </View>
       </ScrollView>
       <View className="absolute bottom-5 left-0 right-0 mx-5 flex-row items-center justify-between gap-3">
-        <TouchableOpacity className="bg-accent rounded-lg py-3.5 flex flex-row item-center justify-center z-50 flex-1" onPress={router.back}>
+        <TouchableOpacity 
+          className="bg-accent rounded-lg py-3.5 flex flex-row item-center justify-center z-50 flex-1" 
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/");
+            }
+          }}
+          >
           <Image
             source={icons.arrow}
             className="size-5 mr-1 mt-0.5 rotate-180"
@@ -71,24 +110,38 @@ export default function MovieDetails() {
           />
           <Text className="text-white font-semibold text-base">Go Back</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setWatchState(prev => (prev + 1) % 3)} className="w-[50px] flex items-center">
-            <Icon 
-                name={watchState === 2 ? "check-circle" : "eye"}
-                size={35} 
-                color={watchState === 0 ? "white" : "#00d12a"} 
-                className="bg-gray-500/80 rounded-md p-1"
-                solid={watchState !== 0}
-            />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setFavorite(prev => !prev)}>
-            <Icon
-                name="heart"
-                size={35} 
-                color={favorite ? "red" : "white"} 
-                className="bg-gray-500/80 rounded-md p-1"
-                solid={favorite}
-            />
-        </TouchableOpacity>
+        {
+            watchState < 0 ? <ActivityIndicator size="small" color="white" /> : 
+            (
+            <TouchableOpacity 
+                onPress={executeWatchState}
+                >
+                <FontAwesome6 
+                    name={watchState === 2 ? "check-circle" : "eye"}
+                    size={35} 
+                    color={watchState === 0 ? "white" : "#00d12a"} 
+                    className="bg-gray-500/80 rounded-md p-1"
+                    solid={watchState !== 0}
+                />
+            </TouchableOpacity>
+            )
+        }
+        {
+            favourite < 0 ? <ActivityIndicator size="small" color="white" className="w-[47]" /> :
+            (
+            <TouchableOpacity 
+                onPress={executeFavorite}
+                >
+                <FontAwesome6 
+                    name="heart"
+                    size={35} 
+                    color={favourite === 1 ? "red" : "white"} 
+                    className="bg-gray-500/80 rounded-md p-1"
+                    solid={favourite === 1}
+                />
+            </TouchableOpacity>
+            )
+        }
       </View>
     </View>
   );
