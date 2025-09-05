@@ -5,13 +5,14 @@ import { AuthContext } from "@/contexts/authContext";
 import { Dispatch, SetStateAction, useContext, useState } from "react";
 import { Image, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
-export default function LoginScreen({setLoginFormActive, setUser} : {setLoginFormActive: Dispatch<SetStateAction<boolean>>, setUser: Dispatch<SetStateAction<null | Awaited<ReturnType<typeof appwriteAccount.get>>>>}) {
+export default function LoginScreen({setLoginFormActive, setUser, setLoading} : {setLoginFormActive: Dispatch<SetStateAction<boolean>>, setUser: Dispatch<SetStateAction<null | Awaited<ReturnType<typeof appwriteAccount.get>>>>, setLoading: Dispatch<SetStateAction<boolean>>}) {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const { login } = useContext(AuthContext);
 
     const handleLogin = async () => {
+        setLoading(true);
         try {
             const response = await login(email, password);
             console.log("Login successful:", response);

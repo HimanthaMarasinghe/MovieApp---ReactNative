@@ -1,10 +1,12 @@
 import MovieCard from "@/components/movieCard";
+import MovieLoadingCard from "@/components/movieLoadingCard";
 import SearchBar from "@/components/searchBar";
 import TrendingCard from "@/components/trendingCard";
 import { images } from "@/constants/images";
 import { AuthContext } from "@/contexts/authContext";
 import { fetchMovies, fetchTrendingMovies } from "@/services/api";
 import useFetch from "@/services/useFetch";
+import { TrendingWidget } from "@/widget/widget";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   FlatList,
@@ -12,21 +14,22 @@ import {
   Keyboard,
   RefreshControl,
   Text,
-  TextInput,
+  TouchableOpacity,
   View
 } from "react-native";
+import { requestWidgetUpdate } from 'react-native-android-widget';
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Index() {
   const [searchTerm, setSearchTerm] = useState('');
-  const { data: movies, loading: moviesLoading, error: moviesError, refetch } = useFetch(() =>
+  const { data: movies, setData: setMovies, loading: moviesLoading, error: moviesError, refetch } = useFetch(() =>
     fetchMovies({ query: searchTerm })
   );
 
   const { isLoggedIn } = useContext(AuthContext);
 
   const scrollViewRef = useRef<FlatList>(null);
-  const searchBarRef = useRef<TextInput>(null);
+  const searchBarRef = useRef<View>(null);
   const insets = useSafeAreaInsets();
 
   // Scroll to SearchBar when keyboard appears
@@ -65,12 +68,29 @@ export default function Index() {
     refreshHome();
   }, [isLoggedIn]);
 
+  useEffect(() => {
+    if (!trendingMovies || trendingMovies.length === 0) return;
+    const filteredMovies = trendingMovies.map((movie : Movie) => ({
+        id: movie.id,
+        title: movie.title,
+        rating: movie.vote_count ? `${(movie.vote_average).toFixed(1)} / 10` : 'N/A',
+        image: movie.poster_path
+      }));
+    requestWidgetUpdate({
+      widgetName: 'TMWidget',
+      renderWidget: () => <TrendingWidget movies={filteredMovies} />,
+      widgetNotFound: () => {
+        console.log("Widget not found");
+      }
+    });
+  }, [trendingMovies]);
+
   return (
       <SafeAreaView className="flex-1 bg-primary">
         <Image source={images.bg} className="absolute w-full z-0" />
         <FlatList
           ref={scrollViewRef}
-          data={movies}
+          data={moviesLoading ? Array.from({ length: 6 }).map((_, i) => ({ id: `loading-${i}`, loading: true })) : movies}
           keyExtractor={(item) => item.id.toString()}
           numColumns={2}
           columnWrapperStyle={{
@@ -83,11 +103,13 @@ export default function Index() {
           refreshControl={<RefreshControl refreshing={moviesLoading} onRefresh={refreshHome} />}
           ListHeaderComponent={
             <>
-              <Text className="text-2xl text-center mb-5 text-[#AB8BFF] font-bold">
+              <Text className="text-2xl text-center text-[#AB8BFF] font-bold">
                 Movies Made Easy!
               </Text>
-              <View className="mt-10">
-                <Text className="text-lg text-white font-bold mb-3">Trending Movies</Text>
+              <View className="mt-5">
+                {trendingMovies && trendingMovies.length > 0 ? (
+                  <Text className="text-lg text-white font-bold mb-3">Trending Movies</Text>
+                ) : null}
                 <FlatList
                   data={trendingMovies}
                   renderItem={({ item, index }) => <TrendingCard movie={item} index={index} />}
@@ -105,12 +127,28 @@ export default function Index() {
                 value={searchTerm}
                 onSearch={setSearchTerm}
               />
-              <Text className="text-lg text-white font-bold mt-5 mb-3">
-                {searchTerm.trim() ? `Search results for "${searchTerm}"` : "Latest Movies"}
-              </Text>
+              {searchTerm.trim() ? (
+                <View className="flex-row items-center">
+                  <Text className="text-lg text-white font-bold mt-5 mb-3">
+                    {`Search results for "${searchTerm}"`}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => setSearchTerm('')}
+                    className="bg-purple-500/50 h-10 px-3 rounded ml-auto justify-center"
+                    >
+                    <Text className="text-white text-center font-bold">Clear Search</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <Text className="text-lg text-white font-bold mt-5 mb-3">
+                  Latest Movies
+                </Text>
+              )}
             </>
           }
-          renderItem={({ item }) => <MovieCard movie={item} />}
+          renderItem={({ item }) =>
+            moviesLoading ? <MovieLoadingCard /> : <MovieCard movie={item} />
+          }
           ListEmptyComponent={
             !moviesLoading && !moviesError ? (
               <Text className="text-white text-center">No movies found</Text>

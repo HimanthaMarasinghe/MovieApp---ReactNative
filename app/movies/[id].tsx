@@ -61,7 +61,7 @@ export default function MovieDetails() {
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View>
           <Image 
-            source={{uri : `https://image.tmdb.org/t/p/w500${movie?.poster_path}`}} 
+            source={movie?.poster_path ? {uri : `https://image.tmdb.org/t/p/w500${movie?.poster_path}`} : images.imageNotFound } 
             className="w-full h-[550px]"
             resizeMode="stretch"
           />
@@ -92,7 +92,16 @@ export default function MovieDetails() {
         </View>
       </ScrollView>
       <View className="absolute bottom-5 left-0 right-0 mx-5 flex-row items-center justify-between gap-3">
-        <TouchableOpacity className="bg-accent rounded-lg py-3.5 flex flex-row item-center justify-center z-50 flex-1" onPress={router.back}>
+        <TouchableOpacity 
+          className="bg-accent rounded-lg py-3.5 flex flex-row item-center justify-center z-50 flex-1" 
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/");
+            }
+          }}
+          >
           <Image
             source={icons.arrow}
             className="size-5 mr-1 mt-0.5 rotate-180"

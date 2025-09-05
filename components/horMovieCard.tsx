@@ -1,3 +1,4 @@
+import { images } from "@/constants/images";
 import { AuthContext } from "@/contexts/authContext";
 import { updateFav, updateWatchState } from "@/services/api";
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -31,8 +32,8 @@ const MovieCard = ({movie} : {movie : Movie}) => {
             <View className="flex-row items-start">
                 {/* Image */}
                 <Image
-                source={{ uri: poster_path ? `https://image.tmdb.org/t/p/w500${poster_path}`
-                                : 'https://via.placeholder.com/150' }}
+                source={poster_path ? { uri: `https://image.tmdb.org/t/p/w500${poster_path}` }
+                                : images.imageNotFound }
                 className="w-24 h-36 rounded-lg"
                 resizeMode="cover"
                 />
@@ -40,7 +41,7 @@ const MovieCard = ({movie} : {movie : Movie}) => {
                 {/* Title, Year, Rating */}
                 <View className="flex-1 ml-3">
                 <Text className="text-white font-bold text-lg">{title}</Text>
-                <Text className="text-gray-400 mt-1">{release_date?.split('-')[0]} • ⭐ {Math.round(vote_average / 2)}</Text>
+                <Text className="text-gray-400 mt-1">{release_date?.split('-')[0]} • ⭐ {Math.round(vote_average)}/ 10</Text>
                 <View className="flex-row items-center gap-x-2">
                     {
                         watchState < 0 ? <ActivityIndicator size="small" color="white" /> : 

@@ -140,9 +140,7 @@ const FloatingAI: React.FC = () => {
 
                 if (!speakingRef.current) startTimer();
                 clearTimeout(listenTimerId.current!);
-                console.log("I was here : ", listeningRef.current);
                 if (listeningRef.current) {
-                    console.log("I was also here");
                     ExpoSpeechRecognitionModule.stop();
                 }
 

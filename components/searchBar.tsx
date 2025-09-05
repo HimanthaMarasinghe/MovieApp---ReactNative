@@ -12,10 +12,10 @@ interface Props {
 }
 
 // Use forwardRef to pass the ref to the TextInput
-const SearchBar = forwardRef<TextInput, Props>(
+const SearchBar = forwardRef<View, Props>(
   ({ onSearch, placeholder, value, autoFocus, editable, onFocus }, ref) => {
     return (
-      <View className="flex-row items-center bg-dark-200 rounded-full px-5 py-4">
+      <View className="flex-row items-center bg-dark-200 rounded-full px-5 py-4" ref={ref}>
         <Image
           source={icons.search}
           className="size-5"
@@ -23,7 +23,7 @@ const SearchBar = forwardRef<TextInput, Props>(
           tintColor="#ab8bff"
         />
         <TextInput
-          ref={ref} // Attach ref to TextInput
+          // Attach ref to TextInput
           placeholder={placeholder}
           value={value}
           autoFocus={autoFocus}

@@ -1,11 +1,11 @@
 import { icons } from "@/constants/icons";
+import { images } from "@/constants/images";
 import { AuthContext } from "@/contexts/authContext";
 import { updateFav, updateWatchState } from "@/services/api";
 import { FontAwesome6 } from '@expo/vector-icons';
 import { Link } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Image, Text, TouchableOpacity, View } from "react-native";
-
 
 
 export default ({ movie }: { movie: Movie }) => {
@@ -30,10 +30,9 @@ export default ({ movie }: { movie: Movie }) => {
         <Link href={`/movies/${movie.id}`} asChild className="border border-gray-500/50 rounded-lg">
             <TouchableOpacity className="w-[50%]">
                 <Image
-                    source={{ 
-                        uri: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                        : 'https://via.placeholder.com/150'
-                     }}
+                    source={ movie.poster_path ? { 
+                        uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                     } : images.imageNotFound }
                     className="w-full h-72 rounded-lg"
                     resizeMode="cover"
                 />
@@ -43,7 +42,7 @@ export default ({ movie }: { movie: Movie }) => {
                         source={icons.star}
                         className="size-4"
                     />
-                    <Text className="text-xs text-white font-bold uppercase">{Math.round(movie.vote_average / 2)}</Text>
+                    <Text className="text-xs text-white font-bold uppercase">{Math.round(movie.vote_average)} / 10</Text>
                 </View>
                 <View className="flex-row items-center justify-between px-1 mb-1">
                      <Text className="text-xs text-light-300 font-medium mt-1">
