@@ -41,3 +41,13 @@ This project combines the convenience of mobile apps with modern AI capabilities
 - Home screen widget for trending movies  
 
 ---
+
+## Related Repositories
+
+Backend
+
+[![React Native mobile App](https://github-readme-stats.vercel.app/api/pin/?username=HimanthaMarasinghe&repo=MovieApp---AppWrite&theme=radical)](https://github.com/HimanthaMarasinghe/MovieApp---AppWrite)
+
+Web App
+
+[![React web app](https://github-readme-stats.vercel.app/api/pin/?username=HimanthaMarasinghe&repo=movieApp&theme=radical)](https://github.com/HimanthaMarasinghe/movieApp)
