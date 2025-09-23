@@ -69,7 +69,7 @@ export function TrendingWidget({movies} : {movies: WidgetMovies[]}) {
               }}
             >
               <TextWidget text={movie.title} style={{ fontSize: 16, color: '#ffffff' }} />
-              <TextWidget text={`Rating: ${movie.rating} / 10`} style={{ fontSize: 14, color: '#ffffff' }} />
+              <TextWidget text={`Rating: ${movie.rating}`} style={{ fontSize: 14, color: '#ffffff' }} />
             </FlexWidget>
           </FlexWidget>
         ))}

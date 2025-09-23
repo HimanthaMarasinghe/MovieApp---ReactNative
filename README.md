@@ -1,50 +1,43 @@
-# Welcome to your Expo app 👋
+# Movie Watch List App 🎬🤖
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is a **React Native movie app** that brings **AI and voice interaction** to your fingertips.  
 
-## Get started
+[▶ Watch the demo video from here](https://res.cloudinary.com/dtimdnbve/video/upload/v1758615160/Demo_ebc7im.mp4)
 
-1. Install dependencies
+![](https://res.cloudinary.com/dtimdnbve/image/upload/w_auto,dpr_auto,q_auto,f_auto/v1758614150/1_c04mcl.png)
+![](https://res.cloudinary.com/dtimdnbve/image/upload/w_auto,dpr_auto,q_auto,f_auto/v1758614141/2_h51l0p.png)
+![](https://res.cloudinary.com/dtimdnbve/image/upload/w_auto,dpr_auto,q_auto,f_auto/v1758614144/4_ipg4fg.png)
+![](https://res.cloudinary.com/dtimdnbve/image/upload/w_auto,dpr_auto,q_auto,f_auto/v1758614148/3_nzdk6n.png)
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## 📝 Project Description
 
-   ```bash
-   npx expo start
-   ```
+The app is designed to make **discovering, and managing movies** fun and easy:
 
-In the output, you'll find options to open the app in a
+- **Search movies instantly** 🔎 – look up any movie and get detailed information.  
+- **Manage your own movie lists** 📋 – keep track of Favorites, Watched, and Want to Watch movies.  
+- **AI-powered chat** 🤖 – talk to an AI anywhere in the app. It listens, responds, and gives movie suggestions or explanations.  
+- **Home screen widget** 📱 – stay updated on trending movies without opening the app.  
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+This project combines the convenience of mobile apps with modern AI capabilities to create an interactive and personalized movie experience.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## 🛠️ Tech Stack
 
-When you're ready, run:
+- **Frontend:** React Native (cross-platform mobile development)  
+- **Styling:** Tailwind CSS for a clean and responsive UI  
+- **Backend / Services:** Appwrite (authentication, database, serverless functions)  
+- **AI Integration:** Gemini API for voice and text-based AI interactions  
 
-```bash
-npm run reset-project
-```
+---
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🚀 Features
 
-## Learn more
+- Search for movies and view details  
+- Create and manage personalized movie lists  
+- AI chat for recommendations, explanations, and suggestions  
+- Home screen widget for trending movies  
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
